@@ -60,8 +60,8 @@ def generate_launch_description():
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
-        namespace=robot_name_1,
-        parameters=[{'frame_prefix': robot_name_1+'/', 'use_sim_time': use_sim_time,
+        # namespace=robot_name_1,
+        parameters=[{'frame_prefix': '/', 'use_sim_time': use_sim_time,
                      'robot_description': ParameterValue(Command(['xacro ', robot_desc_path, ' robot_name:=', robot_name_1]), value_type=str)}],
         output="screen"
     )
@@ -70,71 +70,15 @@ def generate_launch_description():
         package='gazebo_ros',
         executable='spawn_entity.py',
         arguments=['-entity', robot_name_1, '-x', '0.0', '-y', '0.0', '-z', '0.0',
-                   '-topic', robot_name_1+'/robot_description']
+                   '-topic', '/robot_description']
     )
-
-    # load_joint_state_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
-    #          'joint_state_broadcaster'],
-    #     output='screen'
-    # )
-
-    # load_diff_drive_controller = ExecuteProcess(
-    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
-    #          'diffbot_base_controller'],
-    #     output='screen'
-    # )
-
-    # joint_state_broadcaster_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=["joint_state_broadcaster",
-    #                "--controller-manager", "/controller_manager"],    
-    # )
-
-
-    # diff_drive_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=["diffbot_base_controller",
-    #                "--controller-manager", "/controller_manager"],   
-    # )
-
-    # delayed_joint_state_broadcaster_spawner = RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=spawn_robot1,
-    #             on_exit=[load_joint_state_controller], 
-    #             ) 
-    # )
-
-    # delayed_diff_drive_spawner = RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=load_joint_state_controller,
-    #             on_exit=[load_diff_drive_controller], 
-    #             ) 
-    # )
-
-    # delayed_joint_state_broadcaster_spawner = RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=spawn_robot1,
-    #             on_exit=[joint_state_broadcaster_spawner], 
-    #             ) 
-    # )
-
-    # delayed_diff_drive_spawner = RegisterEventHandler(
-    #         event_handler=OnProcessExit(
-    #             target_action=joint_state_broadcaster_spawner,
-    #             on_exit=[diff_drive_spawner], 
-    #             ) 
-    # )
-
 
     # Node for spawning joint state broadcaster
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "joint_state_broadcaster", "-c", "/rb1_robot/controller_manager",
+            "joint_state_broadcaster", "-c", "/controller_manager",
             "--controller-manager-timeout", "500"
         ],
     )
@@ -144,18 +88,15 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=[
-            "diffbot_base_controller", "-c", "/rb1_robot/controller_manager",
+            "diffbot_base_controller", "-c", "/controller_manager",
             "--controller-manager-timeout", "500"
         ]
     )
 
     return LaunchDescription([
-        # delayed_joint_state_broadcaster_spawner,
-        # delayed_diff_drive_spawner,
         gazebo,
         rsp_robot1, 
         spawn_robot1,
         joint_state_broadcaster_spawner,
         robot_controller_spawner,
-
     ])
