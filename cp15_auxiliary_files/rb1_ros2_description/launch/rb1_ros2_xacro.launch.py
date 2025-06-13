@@ -7,6 +7,8 @@ from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
 from ament_index_python.packages import get_package_prefix
 from launch_ros.descriptions import ParameterValue
+from launch.actions import ExecuteProcess, IncludeLaunchDescription, RegisterEventHandler
+from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
@@ -71,8 +73,89 @@ def generate_launch_description():
                    '-topic', robot_name_1+'/robot_description']
     )
 
+    # load_joint_state_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+    #          'joint_state_broadcaster'],
+    #     output='screen'
+    # )
+
+    # load_diff_drive_controller = ExecuteProcess(
+    #     cmd=['ros2', 'control', 'load_controller', '--set-state', 'start',
+    #          'diffbot_base_controller'],
+    #     output='screen'
+    # )
+
+    # joint_state_broadcaster_spawner = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=["joint_state_broadcaster",
+    #                "--controller-manager", "/controller_manager"],    
+    # )
+
+
+    # diff_drive_spawner = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     arguments=["diffbot_base_controller",
+    #                "--controller-manager", "/controller_manager"],   
+    # )
+
+    # delayed_joint_state_broadcaster_spawner = RegisterEventHandler(
+    #         event_handler=OnProcessExit(
+    #             target_action=spawn_robot1,
+    #             on_exit=[load_joint_state_controller], 
+    #             ) 
+    # )
+
+    # delayed_diff_drive_spawner = RegisterEventHandler(
+    #         event_handler=OnProcessExit(
+    #             target_action=load_joint_state_controller,
+    #             on_exit=[load_diff_drive_controller], 
+    #             ) 
+    # )
+
+    # delayed_joint_state_broadcaster_spawner = RegisterEventHandler(
+    #         event_handler=OnProcessExit(
+    #             target_action=spawn_robot1,
+    #             on_exit=[joint_state_broadcaster_spawner], 
+    #             ) 
+    # )
+
+    # delayed_diff_drive_spawner = RegisterEventHandler(
+    #         event_handler=OnProcessExit(
+    #             target_action=joint_state_broadcaster_spawner,
+    #             on_exit=[diff_drive_spawner], 
+    #             ) 
+    # )
+
+
+    # Node for spawning joint state broadcaster
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "joint_state_broadcaster", "-c", "/rb1_robot/controller_manager",
+            "--controller-manager-timeout", "500"
+        ],
+    )
+
+    # Node for spawning robot base controller
+    robot_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "diffbot_base_controller", "-c", "/rb1_robot/controller_manager",
+            "--controller-manager-timeout", "500"
+        ]
+    )
+
     return LaunchDescription([
+        # delayed_joint_state_broadcaster_spawner,
+        # delayed_diff_drive_spawner,
         gazebo,
-        rsp_robot1,
+        rsp_robot1, 
         spawn_robot1,
+        joint_state_broadcaster_spawner,
+        robot_controller_spawner,
+
     ])
