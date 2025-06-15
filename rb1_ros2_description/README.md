@@ -1,6 +1,10 @@
 # The rb1_ros2_description package
 
-This package contains a ROS2 robot model description for Robotnik's RB-1 mobile base.   
+This package contains a ROS2 robot model description for Robotnik's RB-1 mobile base.
+
+In order to control the robot in the simulation, two different controllers are added to the robot:
+        - A **Differential Drive Controller** to control the RB-1's movements.
+        - An ** Effort Controller** to control the RB-1's elevator.   
 
 ## Disclaimer:  
 This package only modifies/adapts files from these repositories/packages:  
@@ -9,26 +13,43 @@ This package only modifies/adapts files from these repositories/packages:
 - [RobotnikAutomation/robotnik_sensors],(https://github.com/RobotnikAutomation/robotnik_sensors) licensed under the BSD License
 
 
-## Launch the simulation and spawn the robot
+## Launch the simulation 
 
-This will also launch the diff drive controller 
+The following command will start the simulation and spawn the robot:
 ```
 ros2 launch rb1_ros2_description rb1_ros2_xacro.launch.py
 ```
 
+The previous launch file also loads both the joint_state_broadcaster and diffbot_base_controller.
+To check if the controllers are being loaded correctly, run:
+```
+ros2 control list_controllers
+```
+The two controllers should be stated as active.
+
+
 ## Move the robot:
 
-### Command to move the robot using teleop:
+### Command to move the robot using the keyboard:
 ```
 ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args --remap /cmd_vel:=/diffbot_base_controller/cmd_vel_unstamped
 ```
 
 ### Send directly Twist commands to the robot:
+
+It is possible to control both linear and angular velocities by publishing messages in the `diffbot_base_controller/cmd_vel_unstamped` topic.
+
+For example, this command will make the robot turn around the Z-axis:
+```
+ros2 topic pub --rate 10 diffbot_base_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0, z: 0.0}, angular: {x: 0.0,y: 0.0, z: 0.2}}"
+```
+
+To stop the robot, publish a message with zero velocities:
 ```
 ros2 topic pub --rate 10 diffbot_base_controller/cmd_vel_unstamped geometry_msgs/msg/Twist "{linear: {x: 0.0, y: 0, z: 0.0}, angular: {x: 0.0,y: 0.0, z: 0.0}}"
 ```
 
-## Lift the elevator
+## Control the elevator
 
 ### Load the elevator controller 
 After launching the simulation, you can load the elevator lifting unit 
