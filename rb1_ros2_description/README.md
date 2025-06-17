@@ -21,12 +21,12 @@ ros2 launch rb1_ros2_description rb1_ros2_xacro.launch.py
 ```
 ![RB-1 spawned in Gazebo](images/rb1_in_simulation.png)
 
-The previous launch file also loads both the `joint_state_broadcaster` and `diffbot_base_controller`.
+The previous launch file also loads both the `joint_state_broadcaster`, `diffbot_base_controller` and `effort_controllers`.
 To check if the controllers are being loaded correctly, run:
 ```
 ros2 control list_controllers
 ```
-The two controllers should be stated as active.
+The three controllers should be stated as active.
 
 
 ## Move the robot:
@@ -53,10 +53,8 @@ ros2 topic pub --once diffbot_base_controller/cmd_vel_unstamped geometry_msgs/ms
 ## Control the elevator
 
 ### Load the elevator controller 
-After launching the simulation, it is possible to load the elevator's controller via the following command: 
-```
-ros2 control load_controller --set-state start effort_controllers
-```
+The elevator controller is loaded within the previous launch file.
+
 *Please note that the maximum effort command that can be sent to the elevator joint is **10.0** 
 to move it up, and the minimum one is **0.0** to move it down.*
 
