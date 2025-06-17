@@ -93,10 +93,21 @@ def generate_launch_description():
         ]
     )
 
+    # Node for spawning robot base controller
+    elevator_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "effort_controllers", "-c", "/controller_manager",
+            "--controller-manager-timeout", "500"
+        ]
+    )
+
     return LaunchDescription([
         gazebo,
         rsp_robot1, 
         spawn_robot1,
         joint_state_broadcaster_spawner,
         robot_controller_spawner,
+        elevator_controller_spawner,
     ])
